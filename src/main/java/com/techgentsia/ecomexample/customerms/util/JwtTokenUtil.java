@@ -13,8 +13,9 @@ import java.util.function.Function;
 
 @Service
 public class JwtTokenUtil {
-
+   //not good
     private String SECRET_KEY = "secret";
+
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

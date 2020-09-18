@@ -1,5 +1,6 @@
 package com.techgentsia.ecomexample.customerms.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,9 +24,12 @@ class Customer extends DBTimestamps implements Serializable {
     private String lastName;
     @NotBlank(message = EMAIL_VALIDATION)
     @Email
+    @Column(unique=true)
     private String email;
     private String img;
     @NotBlank(message = PASSWORD_VALIDATION)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String roles = USER_ROLE;
 }

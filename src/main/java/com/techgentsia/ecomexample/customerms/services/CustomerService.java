@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class CustomerService implements UserDetailsService {
     @Autowired
     private CustomerRepository customerRepository;
 
-
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     public List<Customer> getAllCustomers() {
         List<Customer> result = new ArrayList<>();
         customerRepository.findAll().forEach(result::add);
@@ -37,6 +39,7 @@ public class CustomerService implements UserDetailsService {
         return customer;
     }
     public Customer createCustomer(Customer customer) {
+        customer.setPassword(bCryptPasswordEncoder.encode(customer.getPassword()));
         return customerRepository.save(customer);
     }
 
@@ -53,7 +56,7 @@ public class CustomerService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        return new User("foo","foo", new ArrayList<>());
+        Customer customer = customerRepository.findOneByEmail(email);
+        return new User(customer.getEmail(),customer.getPassword(), new ArrayList<>());
     }
 }

@@ -4,6 +4,8 @@ import com.techgentsia.ecomexample.customerms.entity.Customer;
 import com.techgentsia.ecomexample.customerms.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -14,7 +16,10 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-
+    @GetMapping("/me")
+    public ResponseEntity<Customer> getCurrentCustomers(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok().body(customerService.getCustomerByEmail(user.getUsername()));
+    }
 
     @GetMapping("/")
     public Iterable<Customer> getAllCustomers() {
@@ -22,7 +27,7 @@ public class CustomerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Customer> deleteCustomer(@PathVariable(value = "id") UUID id) {
+    public ResponseEntity<?> deleteCustomer(@PathVariable(value = "id") UUID id) {
         customerService.deleteCustomer(id);
         return ResponseEntity.noContent().build();
     }
