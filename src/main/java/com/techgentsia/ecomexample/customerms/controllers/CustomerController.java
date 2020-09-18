@@ -1,6 +1,7 @@
 package com.techgentsia.ecomexample.customerms.controllers;
 
 import com.techgentsia.ecomexample.customerms.entity.Customer;
+import com.techgentsia.ecomexample.customerms.exceptions.CustomerNotFoundException;
 import com.techgentsia.ecomexample.customerms.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,8 @@ public class CustomerController {
     private CustomerService customerService;
 
     @GetMapping("/me")
-    public ResponseEntity<Customer> getCurrentCustomers(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok().body(customerService.getCustomerByEmail(user.getUsername()));
+    public ResponseEntity<Customer> getCurrentCustomers(@AuthenticationPrincipal User user) throws CustomerNotFoundException {
+        return ResponseEntity.ok().body(customerService.getCustomerById(UUID.fromString(user.getUsername())));
     }
 
     @GetMapping("/")

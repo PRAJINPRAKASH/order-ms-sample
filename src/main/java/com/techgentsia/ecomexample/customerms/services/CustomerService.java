@@ -59,4 +59,9 @@ public class CustomerService implements UserDetailsService {
         Customer customer = customerRepository.findOneByEmail(email);
         return new User(customer.getEmail(),customer.getPassword(), new ArrayList<>());
     }
+
+    public UserDetails loadUserByUserId(UUID id) throws CustomerNotFoundException {
+        Customer customer = customerRepository.findById(id).orElseThrow(()-> new CustomerNotFoundException(id));
+        return new User(customer.getId().toString(),customer.getPassword(), new ArrayList<>());
+    }
 }

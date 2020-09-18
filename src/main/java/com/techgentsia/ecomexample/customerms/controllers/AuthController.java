@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +41,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthLoginRequest authLoginRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authLoginRequest.getEmail(),
                 authLoginRequest.getPassword()));
-        final UserDetails user = customerService.loadUserByUsername(authLoginRequest.getEmail());
-        return ResponseEntity.ok().body(new AuthResponse(jwtTokenUtil.generateToken(user)));
+        final Customer customer = customerService.getCustomerByEmail(authLoginRequest.getEmail());
+        return ResponseEntity.ok().body(new AuthResponse(jwtTokenUtil.generateToken(customer)));
     }
 }

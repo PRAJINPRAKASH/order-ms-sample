@@ -1,7 +1,9 @@
 package com.techgentsia.ecomexample.customerms.filters;
 
+import com.techgentsia.ecomexample.customerms.exceptions.CustomerNotFoundException;
 import com.techgentsia.ecomexample.customerms.services.CustomerService;
 import com.techgentsia.ecomexample.customerms.util.JwtTokenUtil;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.UUID;
 
 import static com.techgentsia.ecomexample.customerms.constants.AuthConstants.AUTH_HEADER;
 import static com.techgentsia.ecomexample.customerms.constants.AuthConstants.AUTH_HEADER_PREFIX;
@@ -32,16 +35,22 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if(authHeader != null && authHeader.startsWith(AUTH_HEADER_PREFIX)){
             final String token = authHeader.replace(AUTH_HEADER_PREFIX,"");
-            final String username = jwtTokenUtil.extractUsername(token);
-            if(username!=null && SecurityContextHolder.getContext().getAuthentication() == null){
-                UserDetails userDetails = userService.loadUserByUsername(username);
-                if(jwtTokenUtil.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                            = new UsernamePasswordAuthenticationToken(userDetails,
-                            null,userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken
-                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            final String id = jwtTokenUtil.extractUserId(token);
+            if(id!=null && SecurityContextHolder.getContext().getAuthentication() == null){
+                try {
+                    UUID customerId = UUID.fromString(id);
+                    UserDetails userDetails = userService.loadUserByUserId(customerId);
+                    if (jwtTokenUtil.validateToken(token, userDetails)) {
+                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                                = new UsernamePasswordAuthenticationToken(userDetails,
+                                null, userDetails.getAuthorities());
+                        usernamePasswordAuthenticationToken
+                                .setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    }
+                }
+                catch (Exception e) {
+                    logger.error(e);
                 }
 
             }

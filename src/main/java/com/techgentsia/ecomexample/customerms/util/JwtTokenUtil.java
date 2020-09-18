@@ -15,11 +15,13 @@ import java.util.function.Function;
 
 @Service
 public class JwtTokenUtil {
+
+    final String USER_ID ="userId";
     @Value("${JWT_SECRET}")
     private String SECRET_KEY;
 
 
-    public String extractUsername(String token) {
+    public String extractUserId(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -39,9 +41,9 @@ public class JwtTokenUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(Customer customer) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, customer.getId().toString());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -52,7 +54,7 @@ public class JwtTokenUtil {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
+        final String username = extractUserId(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
