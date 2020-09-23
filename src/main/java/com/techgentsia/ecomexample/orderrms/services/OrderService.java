@@ -1,5 +1,6 @@
 package com.techgentsia.ecomexample.orderrms.services;
 
+import com.techgentsia.ecomexample.orderrms.core.OrderIdGenerator;
 import com.techgentsia.ecomexample.orderrms.entity.Order;
 import com.techgentsia.ecomexample.orderrms.models.OrderRequest;
 import com.techgentsia.ecomexample.orderrms.models.Product;
@@ -21,9 +22,11 @@ public class OrderService  {
     private InternalProductService internalProductService;
     @Autowired
     private InternalCustomerService internalCustomerService;
+    @Autowired
+    private OrderIdGenerator orderIdGenerator;
+
     public List<Order> getAllOrders(String user) {
         List<Order> result = new ArrayList<>();
-        System.out.println("findAllByCustomerId");
         orderRepository.findAllByCustomerId(UUID.fromString(user)).forEach(result::add);
         return result;
     }
@@ -32,6 +35,7 @@ public class OrderService  {
         internalCustomerService.customerNotExists();
         Product product = internalProductService.getProductById(order.getProductId());
         Order newOrder = new Order();
+        newOrder.setOrderId(orderIdGenerator.generate());
         newOrder.setCustomerId(UUID.fromString(user));
         newOrder.setProductId(UUID.fromString(order.getProductId()));
         newOrder.setQuantity(order.getQuantity());
